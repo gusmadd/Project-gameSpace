@@ -2190,7 +2190,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ghosts: []
-  pacman: {fileID: 0}
+  pacman: {fileID: 1007948379}
   pellets: {fileID: 0}
   gameOverText: {fileID: 0}
   scoreText: {fileID: 0}

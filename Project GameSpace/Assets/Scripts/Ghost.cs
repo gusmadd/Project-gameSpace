@@ -32,7 +32,7 @@ public class Ghost : MonoBehaviour
         gameObject.SetActive(true);
         movement.ResetState();
 
-        frightened.Disable();
+        //frightened.Disable();
         chase.Disable();
         scatter.Enable();
 
