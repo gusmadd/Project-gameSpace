@@ -7902,9 +7902,9 @@ MonoBehaviour:
   ghosts: []
   pacman: {fileID: 0}
   pellets: {fileID: 0}
-  gameOverText: {fileID: 0}
-  scoreText: {fileID: 0}
-  livesText: {fileID: 0}
+  gameOverText: {fileID: 316989833}
+  scoreText: {fileID: 130333453}
+  livesText: {fileID: 2088580274}
 --- !u!4 &1915632523
 Transform:
   m_ObjectHideFlags: 0

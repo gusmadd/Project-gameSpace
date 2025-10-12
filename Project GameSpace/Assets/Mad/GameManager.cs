@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,9 +10,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Ghost[] ghosts;
     [SerializeField] private Pacman pacman;
     [SerializeField] private Transform pellets;
-    [SerializeField] private Text gameOverText;
-    [SerializeField] private Text scoreText;
-    [SerializeField] private Text livesText;
+    [SerializeField] private TMP_Text gameOverText;
+    [SerializeField] private TMP_Text scoreText;
+    [SerializeField] private TMP_Text livesText;
 
     public int score { get; private set; } = 0;
     public int lives { get; private set; } = 3;
