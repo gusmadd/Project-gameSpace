@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b9154d41eb36c4e409da1f002bd48eef
+guid: 46f70a8e5006eaf438bab8fbcc9e63ce
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -48,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 48
+  spritePixelsToUnits: 20
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -72,7 +72,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 2
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -123,85 +123,190 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: sprite sheet pacman gamespace_0
+      name: sprite sheet pacman gamespace 1_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 49
-        width: 47
-        height: 47
+        y: 32
+        width: 16
+        height: 16
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 370bc2a1180ecb14b9db9d91b528a7d3
-      internalID: -872144550
+      spriteID: 22b7e35c9b126034591ea03e6f3af363
+      internalID: 2098492284
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sprite sheet pacman gamespace_1
+      name: sprite sheet pacman gamespace 1_1
       rect:
         serializedVersion: 2
-        x: 48
-        y: 48
-        width: 48
-        height: 48
+        x: 16
+        y: 32
+        width: 16
+        height: 16
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3d9f949fc4115e340a0eaf447ee8db9c
-      internalID: 469251572
+      spriteID: c684ba47e48398546a835177ff55230b
+      internalID: 1492185539
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sprite sheet pacman gamespace_2
+      name: sprite sheet pacman gamespace 1_2
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 32
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3d003b2e4f50a984685205b70b681fda
+      internalID: -874831011
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sprite sheet pacman gamespace 1_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 16
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c262ab49389e4b24a865b598a7b3db86
+      internalID: -762920801
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sprite sheet pacman gamespace 1_4
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 16
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a5798829afce4b045a5a6231c0c86602
+      internalID: 649101701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sprite sheet pacman gamespace 1_5
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 16
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 434bf34a2794360448ec1720459e134c
+      internalID: 305349830
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sprite sheet pacman gamespace 1_6
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 48
-        height: 48
+        width: 16
+        height: 16
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b366d14c4cd81194da7a6cf960203ab9
-      internalID: -1655846100
+      spriteID: 60604654f0d54bc4ea889adafadb0e05
+      internalID: 179606056
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: sprite sheet pacman gamespace_3
+      name: sprite sheet pacman gamespace 1_7
       rect:
         serializedVersion: 2
-        x: 48
+        x: 16
         y: 0
-        width: 48
-        height: 48
+        width: 16
+        height: 16
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 218e84eb59f390146a19382e99eaa5bd
-      internalID: -278110648
+      spriteID: 1a79892d36f423c4aa30b95b43995ea1
+      internalID: -1530951912
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sprite sheet pacman gamespace 1_8
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 0
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8c05d820c9ed9c94caca434a61f83568
+      internalID: -943008002
       vertices: []
       indices: 
       edges: []
@@ -217,10 +322,15 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      sprite sheet pacman gamespace_0: -872144550
-      sprite sheet pacman gamespace_1: 469251572
-      sprite sheet pacman gamespace_2: -1655846100
-      sprite sheet pacman gamespace_3: -278110648
+      sprite sheet pacman gamespace 1_0: 2098492284
+      sprite sheet pacman gamespace 1_1: 1492185539
+      sprite sheet pacman gamespace 1_2: -874831011
+      sprite sheet pacman gamespace 1_3: -762920801
+      sprite sheet pacman gamespace 1_4: 649101701
+      sprite sheet pacman gamespace 1_5: 305349830
+      sprite sheet pacman gamespace 1_6: 179606056
+      sprite sheet pacman gamespace 1_7: -1530951912
+      sprite sheet pacman gamespace 1_8: -943008002
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
