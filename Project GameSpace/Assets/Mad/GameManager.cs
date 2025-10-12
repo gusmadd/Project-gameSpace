@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     [SerializeField] private Ghost[] ghosts;
-    [SerializeField] private Pacman pacman;
+    [SerializeField] private PlayerController pacman;
     [SerializeField] private Transform pellets;
     [SerializeField] private TMP_Text gameOverText;
     [SerializeField] private TMP_Text scoreText;
@@ -78,7 +78,7 @@ public class GameManager : MonoBehaviour
             ghosts[i].ResetState();
         }
 
-        pacman.ResetState();
+        pacman.ForceRecenter();
     }
 
     private void GameOver()
@@ -107,7 +107,7 @@ public class GameManager : MonoBehaviour
 
     public void PacmanEaten()
     {
-        pacman.DeathSequence();
+        //pacman.DeathSequence();
 
         SetLives(lives - 1);
 
