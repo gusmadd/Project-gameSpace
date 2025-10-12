@@ -4,61 +4,56 @@ using UnityEngine.Tilemaps;
 
 public class EnemyAI : MonoBehaviour
 {
-    [Header("References")]
-    public Tilemap wallTilemap; // Tilemap tembok (Obstacle)
-
-    [Header("Movement")]
+    public Tilemap wallTilemap;
     public float moveSpeed = 5f;
     public float arriveThreshold = 0.02f;
 
     private Vector3 targetWorldPos;
     private bool isMoving = false;
-    private Vector2Int currentDir = Vector2Int.right; // arah awal
+    private Vector2Int currentDir = Vector2Int.right;
+    public Transform player;
 
-    private Transform player;
-    public void SetPlayer(Transform p)
+    private void Start()
     {
-        player = p;
-    }
-    void Start()
-    {
-        // sisanya tetap sama
-        Vector3Int startCell = wallTilemap.WorldToCell(transform.position);
-        targetWorldPos = wallTilemap.CellToWorld(startCell) + (Vector3)wallTilemap.cellSize * 0.5f;
-        transform.position = targetWorldPos;
-
+        SnapToGrid();
         TryStartMove(currentDir);
     }
 
-
-    void FixedUpdate()
+    private void FixedUpdate()
     {
-        if (isMoving)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, targetWorldPos, moveSpeed * Time.fixedDeltaTime);
+        if (GameManager.Instance.IsGameOver) return;
+        if (!isMoving) return;
 
-            if (Vector3.Distance(transform.position, targetWorldPos) <= arriveThreshold)
-            {
-                transform.position = targetWorldPos;
-                isMoving = false;
-                ChooseNextDirection();
-            }
+        transform.position = Vector3.MoveTowards(transform.position, targetWorldPos, moveSpeed * Time.fixedDeltaTime);
+
+        if (Vector3.Distance(transform.position, targetWorldPos) <= arriveThreshold)
+        {
+            transform.position = targetWorldPos;
+            isMoving = false;
+            ChooseNextDirection();
         }
+    }
+
+    private void SnapToGrid()
+    {
+        Vector3Int cell = wallTilemap.WorldToCell(transform.position);
+        targetWorldPos = wallTilemap.CellToWorld(cell) + (Vector3)wallTilemap.cellSize * 0.5f;
+        transform.position = targetWorldPos;
     }
 
     void ChooseNextDirection()
     {
-        // arah yang mungkin (atas, bawah, kiri, kanan)
-        List<Vector2Int> possibleDirs = new List<Vector2Int>()
-        {
-            Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right
-        };
+        if (GameManager.Instance.IsGameOver) return;
+        if (player == null) return;
 
-        // prioritas: jangan langsung balik arah
+        List<Vector2Int> possibleDirs = new List<Vector2Int>()
+    {
+        Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right
+    };
+
         Vector2Int opposite = -currentDir;
         possibleDirs.Remove(opposite);
 
-        // filter arah yang bisa dilewati (bukan tembok)
         List<Vector2Int> validDirs = new List<Vector2Int>();
         foreach (var dir in possibleDirs)
         {
@@ -68,35 +63,48 @@ public class EnemyAI : MonoBehaviour
 
         if (validDirs.Count == 0)
         {
-            // kalau semua mentok, balik arah
             TryStartMove(opposite);
+            return;
         }
-        else
+
+        // Pilih arah yang mendekati player
+        Vector2Int bestDir = validDirs[0];
+        float minDist = float.MaxValue;
+
+        foreach (var dir in validDirs)
         {
-            // pilih acak salah satu arah valid
-            Vector2Int chosen = validDirs[Random.Range(0, validDirs.Count)];
-            TryStartMove(chosen);
+            Vector3Int nextCell = wallTilemap.WorldToCell(transform.position) + new Vector3Int(dir.x, dir.y, 0);
+            Vector3 nextPos = wallTilemap.CellToWorld(nextCell) + (Vector3)wallTilemap.cellSize * 0.5f;
+
+            float dist = Vector3.Distance(nextPos, player.position);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                bestDir = dir;
+            }
         }
+
+        TryStartMove(bestDir);
     }
 
-    bool CanMove(Vector2Int dir)
+
+    private bool CanMove(Vector2Int dir)
     {
-        Vector3Int currentCell = wallTilemap.WorldToCell(transform.position);
-        Vector3Int nextCell = currentCell + new Vector3Int(dir.x, dir.y, 0);
+        Vector3Int nextCell = wallTilemap.WorldToCell(transform.position) + new Vector3Int(dir.x, dir.y, 0);
         return !wallTilemap.HasTile(nextCell);
     }
 
-    void TryStartMove(Vector2Int dir)
+    private void TryStartMove(Vector2Int dir)
     {
-        if (CanMove(dir))
-        {
-            currentDir = dir;
-            isMoving = true;
+        if (!CanMove(dir)) return;
 
-            Vector3Int nextCell = wallTilemap.WorldToCell(transform.position) + new Vector3Int(dir.x, dir.y, 0);
-            targetWorldPos = wallTilemap.CellToWorld(nextCell) + (Vector3)wallTilemap.cellSize * 0.5f;
-        }
+        currentDir = dir;
+        isMoving = true;
+
+        Vector3Int nextCell = wallTilemap.WorldToCell(transform.position) + new Vector3Int(dir.x, dir.y, 0);
+        targetWorldPos = wallTilemap.CellToWorld(nextCell) + (Vector3)wallTilemap.cellSize * 0.5f;
     }
+
     public void ForceRecenterAfterTeleport()
     {
         if (wallTilemap == null) return;
@@ -108,8 +116,15 @@ public class EnemyAI : MonoBehaviour
 
         // Reset agar bisa langsung gerak
         isMoving = false;
+        // pilih arah berikutnya (acak)
         ChooseNextDirection();
     }
+
+    public void SetPlayer(Transform p)
+    {
+        player = p;
+    }
+
 
 
 }

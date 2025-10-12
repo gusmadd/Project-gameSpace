@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.Tilemaps;
 
 public class PlayerController : MonoBehaviour
@@ -12,6 +13,8 @@ public class PlayerController : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed = 6f;      // unit per second (movesmooth)
     public float arriveThreshold = 0.02f; // tolerance to snap to center
+    public int score = 0;              // contoh skor
+    public int lives = 3;              // contoh nyawa
 
     // runtime
     private Vector3 targetWorldPos;
@@ -29,8 +32,29 @@ public class PlayerController : MonoBehaviour
         transform.position = targetWorldPos;
     }
 
+    // method untuk menambah skor
+    public void AddScore(int points)
+    {
+        score += points;
+        Debug.Log("Score: " + score);
+        // Kalau mau, bisa update UI di sini
+    }
+
+    public void LoseLife()
+    {
+        lives--;
+        Debug.Log("Player hit by ghost! Lives left: " + lives);
+
+        if (lives <= 0)
+            OnDeath();
+        else
+            ForceRecenter(); // kembali ke grid atau start position
+    }
+
+
     void Update()
     {
+        if (GameManager.Instance.IsGameOver) return;
         ReadInput();
 
         if (!isMoving)
@@ -53,6 +77,8 @@ public class PlayerController : MonoBehaviour
                         StartMove(currentDir);
                 }
             }
+            if (GameManager.Instance.IsGameOver) return;
+
         }
         else
         {
@@ -65,6 +91,7 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (GameManager.Instance.IsGameOver) return;
         if (isMoving)
         {
             // move towards targetWorldPos
@@ -164,6 +191,45 @@ public class PlayerController : MonoBehaviour
             StartMove(currentDir);
         }
     }
+    public void OnDeath()
+    {
+        // 1. Reset posisi player
+        Vector3 startPos = wallTilemap.CellToWorld(Vector3Int.zero) + (Vector3)wallTilemap.cellSize * 0.5f;
+        transform.position = startPos;
 
+        // 2. Matikan sementara movement/input
+        isMoving = false;
+        enabled = false; // disable PlayerController sementara
+
+        // 3. Optional: bisa kasih animasi kedip atau efek flash
+        StartCoroutine(RespawnDelay());
+
+        Debug.Log("Player mati!");
+        if (GameManager.Instance.IsGameOver)
+            return;
+
+    }
+
+    private IEnumerator RespawnDelay()
+    {
+        yield return new WaitForSeconds(2f);
+        if (!GameManager.Instance.IsGameOver)
+            enabled = true;
+    }
+
+
+
+    public void Respawn()
+    {
+        // Snap ke posisi awal (misal start cell)
+        Vector3Int startCell = wallTilemap.WorldToCell(Vector3.zero);
+        Vector3 startPos = wallTilemap.CellToWorld(startCell) + (Vector3)wallTilemap.cellSize * 0.5f;
+        transform.position = startPos;
+
+        // Reset arah & movement
+        currentDir = Vector2Int.zero;
+        queuedDir = Vector2Int.zero;
+        isMoving = false;
+    }
 }
 
