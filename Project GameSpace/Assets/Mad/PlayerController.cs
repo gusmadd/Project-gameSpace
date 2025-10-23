@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     // runtime
     private Vector3 targetWorldPos;
     private bool isMoving = false;
+    public Vector3 startPos;
 
     // input buffering
     private Vector2Int currentDir = Vector2Int.zero; // arah saat ini (grid)
@@ -31,6 +32,21 @@ public class PlayerController : MonoBehaviour
         targetWorldPos = wallTilemap.CellToWorld(startCell) + (Vector3)wallTilemap.cellSize * 0.5f;
         transform.position = targetWorldPos;
     }
+    public void RespawnToStart()
+{
+    // Pastikan respawn ke posisi tengah cell awal (bukan posisi interpolasi)
+    Vector3Int startCell = wallTilemap.WorldToCell(startPos);
+    Vector3 cellCenter = wallTilemap.CellToWorld(startCell) + (Vector3)wallTilemap.cellSize * 0.5f;
+    transform.position = cellCenter;
+
+    isMoving = false;
+    currentDir = Vector2Int.zero;
+    queuedDir = Vector2Int.zero;
+    targetWorldPos = cellCenter; // <— penting supaya arah berikutnya benar
+
+    Debug.Log("Player respawn ke posisi awal: " + cellCenter);
+}
+
 
     // method untuk menambah skor
     public void AddScore(int points)

@@ -41,6 +41,10 @@ public class Ghost : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // cek apakah objek ini player
+        
+        Debug.Log("Ghost menabrak sesuatu: " + other.name);
+
         PlayerController player = other.GetComponent<PlayerController>();
         if (player == null) return;
 
@@ -51,7 +55,8 @@ public class Ghost : MonoBehaviour
         }
         else
         {
-            player.LoseLife();
+            Debug.Log("Ghost menabrak Player — Kurangi nyawa!");
+            GameManager.Instance.PacmanEaten();
         }
     }
 }

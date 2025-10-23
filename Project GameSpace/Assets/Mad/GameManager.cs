@@ -1,5 +1,8 @@
 using TMPro;
 using UnityEngine;
+using System.Collections;
+using UnityEngine.SceneManagement;
+
 
 [DefaultExecutionOrder(-100)]
 public class GameManager : MonoBehaviour
@@ -23,6 +26,10 @@ public class GameManager : MonoBehaviour
     private int ghostMultiplier = 1;
     private bool _isGameOver = false;
     private bool isRespawning = false;
+    [SerializeField] private GameObject portalPrefab;
+    private GameObject activePortal;
+    [SerializeField] private Transform portalSpawnPoint;
+
 
     public int Score { get; private set; } = 0;
     public int Lives { get; private set; }
@@ -129,20 +136,45 @@ public class GameManager : MonoBehaviour
         if (Lives > 0)
         {
             isRespawning = true;
+
+            // Nonaktifkan player dulu
             pacman.enabled = false;
-            Invoke(nameof(RespawnRound), 1.5f);
+
+            // Hentikan gerakan ghost sementara
+            foreach (Ghost ghost in ghosts)
+            {
+                var enemyAI = ghost.GetComponent<EnemyAI>();
+                if (enemyAI != null)
+                    enemyAI.enabled = false;
+            }
+
+            // Jalankan delay respawn
+            StartCoroutine(RespawnDelayCoroutine());
         }
         else
         {
             GameOver();
         }
     }
+    private IEnumerator RespawnDelayCoroutine()
+    {
+        yield return new WaitForSeconds(1.5f);
 
+        // aktifkan kembali AI ghost sebelum respawn round
+        foreach (Ghost ghost in ghosts)
+        {
+            var enemyAI = ghost.GetComponent<EnemyAI>();
+            if (enemyAI != null)
+                enemyAI.enabled = true;
+        }
+
+        RespawnRound();
+    }
     private void RespawnRound()
     {
         if (_isGameOver) return;
 
-        pacman.ForceRecenter();
+        pacman.RespawnToStart(); // respawn ke titik semula
         pacman.enabled = true;
         pacman.gameObject.SetActive(true);
 
@@ -176,24 +208,20 @@ public class GameManager : MonoBehaviour
 
         if (!HasRemainingPellets())
         {
-            Invoke(nameof(NewRound), 2f);
+            // semua pellet sudah diambil → panggil portal spawn
+            SpawnPortal();
         }
     }
-
-    public void PowerPelletEaten(PowerPellet pellet)
+    private void SpawnPortal()
     {
-        if (_isGameOver) return;
-
-        foreach (Ghost ghost in ghosts)
+        if (portalPrefab == null)
         {
-            if (ghost.frightened != null)
-                ghost.frightened.Enable(pellet.duration);
+            Debug.LogWarning("Portal prefab belum di-assign di Inspector!");
+            return;
         }
 
-        PelletEaten(pellet);
-
-        CancelInvoke(nameof(ResetGhostMultiplier));
-        Invoke(nameof(ResetGhostMultiplier), pellet.duration);
+        portalPrefab.SetActive(true);
+        Debug.Log("✨ Portal diaktifkan karena semua pellet sudah diambil!");
     }
 
     private bool HasRemainingPellets()
@@ -210,4 +238,49 @@ public class GameManager : MonoBehaviour
     {
         ghostMultiplier = 1;
     }
+    public void NextLevel()
+    {
+        Debug.Log("Next level dimulai!");
+
+        // hapus portal lama
+        if (activePortal != null)
+            Destroy(activePortal);
+
+        // opsional: efek fade, delay, dsb bisa ditambah di sini
+        StartCoroutine(NextLevelCoroutine());
+    }
+
+    private IEnumerator NextLevelCoroutine()
+    {
+        // hentikan input & gerakan player
+        pacman.enabled = false;
+        var pacmanRb = pacman.GetComponent<Rigidbody2D>();
+        if (pacmanRb != null)
+            pacmanRb.velocity = Vector2.zero; // langsung berhenti
+
+        // hentikan semua ghost sementara
+        foreach (Ghost ghost in ghosts)
+        {
+            var ai = ghost.GetComponent<EnemyAI>();
+            if (ai != null)
+                ai.enabled = false;
+        }
+        // delay dikit biar kelihatan efeknya
+        yield return new WaitForSeconds(1f);
+
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        int nextSceneIndex = currentSceneIndex + 1;
+
+        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        {
+            Debug.Log("Memuat scene berikutnya: " + nextSceneIndex);
+            SceneManager.LoadScene(nextSceneIndex);
+        }
+        else
+        {
+            Debug.Log("Tidak ada scene berikutnya, kembali ke menu utama atau restart game.");
+            SceneManager.LoadScene(0); // misalnya balik ke main menu
+        }
+    }
+
 }
