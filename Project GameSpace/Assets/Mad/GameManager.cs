@@ -17,7 +17,8 @@ public class GameManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] private TMP_Text scoreText;
     [SerializeField] private TMP_Text livesText;
-    [SerializeField] private TMP_Text gameOverText;
+    //[SerializeField] private TMP_Text gameOverText;
+    private GameUIManager uiManager;
     [SerializeField] private bool showGameOverUI = false;
 
     [Header("Settings")]
@@ -39,13 +40,16 @@ public class GameManager : MonoBehaviour
     {
         if (Instance != null)
             DestroyImmediate(gameObject);
-        else
+        else 
+        {
             Instance = this;
+        }
     }
 
     private void Start()
     {
-        gameOverText.enabled = false;
+        uiManager = FindObjectOfType<GameUIManager>();
+        //gameOverText.enabled = false;
         NewGame();
     }
 
@@ -96,7 +100,7 @@ public class GameManager : MonoBehaviour
         _isGameOver = true;
 
         // Hanya stop input player
-        gameOverText.enabled = true;
+       // gameOverText.enabled = true;
         pacman.enabled = false;
         pacman.gameObject.SetActive(false);
 
@@ -109,8 +113,13 @@ public class GameManager : MonoBehaviour
         }
 
         // tidak ada Time.timeScale = 0
-        if (showGameOverUI && gameOverText != null)
-            gameOverText.enabled = true;
+       // if (showGameOverUI && gameOverText != null)
+        //    gameOverText.enabled = true;
+
+        if (uiManager != null)
+        {
+            uiManager.ShowGameOver();
+        }
     }
 
     private void SetLives(int lives)
@@ -210,6 +219,7 @@ public class GameManager : MonoBehaviour
         {
             // semua pellet sudah diambil → panggil portal spawn
             SpawnPortal();
+            Debug.Log("Semua pellet sudah diambil! Portal aktif, masuk ke portal untuk lanjut level.");
         }
     }
     private void SpawnPortal()
@@ -281,6 +291,53 @@ public class GameManager : MonoBehaviour
             Debug.Log("Tidak ada scene berikutnya, kembali ke menu utama atau restart game.");
             SceneManager.LoadScene(0); // misalnya balik ke main menu
         }
+    }
+    public void LevelCompleted()
+    {
+        _isGameOver = true; // Supaya input & movement berhenti
+        pacman.enabled = false;
+
+        // Matikan AI musuh
+        foreach (Ghost ghost in ghosts)
+        {
+            var enemyAI = ghost.GetComponent<EnemyAI>();
+            if (enemyAI != null)
+                enemyAI.enabled = false;
+        }
+
+        Debug.Log("Level selesai! Menuju level berikutnya...");
+
+        if (uiManager != null)
+        {
+            uiManager.ShowWin(); // tampilkan UI kemenangan
+        }
+
+        // lanjut ke level berikutnya setelah delay
+        StartCoroutine(NextLevelDelay());
+    }
+
+    private IEnumerator NextLevelDelay()
+    {
+        yield return new WaitForSeconds(2f); // kasih waktu 2 detik biar player lihat efek kemenangan
+        NextLevel();
+    }
+    public int lastLevelIndex { get; private set; }
+    public bool IsLastLevel()
+    {
+        int currentScene = SceneManager.GetActiveScene().buildIndex;
+        return currentScene + 1 >= SceneManager.sceneCountInBuildSettings;
+    }
+
+    // Fungsi untuk menang / selesai semua level
+    public void WinGame()
+    {
+        // Simpan state terakhir
+        PlayerPrefs.SetInt("LastLevelIndex", SceneManager.GetActiveScene().buildIndex);
+        PlayerPrefs.SetInt("LastLives", Lives);
+        PlayerPrefs.SetInt("LastScore", Score);
+
+        // Load Victory Scene
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Akhir");
     }
 
 }

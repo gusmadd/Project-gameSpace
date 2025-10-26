@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Mad/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
+    path: Assets/Mad/Scenes/MainMenu.unity
+    guid: 4ccdecab3d3ae8f4daed99d92bf48609
+  - enabled: 1
     path: Assets/Mad/Scenes/Level 1.unity
     guid: 36cc89ae04cab4e4e88838c1dfcc24f4
   - enabled: 1
@@ -20,4 +23,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Mad/Scenes/Akhir.unity
     guid: a37074d08d5396349a7564699b1c34ef
+  - enabled: 1
+    path: Assets/Mad/Scenes/HighScore.unity
+    guid: 8f0a2eecccf73fa498c0e53aa0386a77
+  - enabled: 1
+    path: Assets/Mad/Scenes/Settings.unity
+    guid: c57c1803d0c1ac8408004ff4e9a52ae4
   m_configObjects: {}
