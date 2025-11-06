@@ -9,8 +9,11 @@ public class Portal : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Debug.Log("Player masuk portal! Next level!");
-            //GameManager.Instance.NextLevel();
-            GameManager.Instance.LevelCompleted();
+
+            if (GameManager.Instance.IsLastLevel())
+                GameManager.Instance.WinGame();
+            else
+                GameManager.Instance.LevelCompleted();
         }
     }
 }
