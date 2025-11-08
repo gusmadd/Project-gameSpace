@@ -28,6 +28,8 @@ public class GameManager : MonoBehaviour
     private bool _isGameOver = false;
     private bool isRespawning = false;
     [SerializeField] private GameObject portalPrefab;
+    private bool isPaused = false;
+    [SerializeField] private GameObject pauseMenuUI;
     private GameObject activePortal;
     [SerializeField] private Transform portalSpawnPoint;
 
@@ -51,12 +53,20 @@ public class GameManager : MonoBehaviour
         uiManager = FindObjectOfType<GameUIManager>();
         //gameOverText.enabled = false;
         NewGame();
+        Time.timeScale = 1f;
     }
 
     private void Update()
     {
         // restart game logika optional jika mau
         // disini tidak ada apa-apa
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (isPaused)
+                ResumeGame();
+            else
+                PauseGame();
+        }
     }
 
     private void NewGame()
@@ -339,5 +349,25 @@ public class GameManager : MonoBehaviour
         // Load Victory Scene
         UnityEngine.SceneManagement.SceneManager.LoadScene("Akhir");
     }
+    public void PauseGame()
+    {
+        Time.timeScale = 0f;
+        isPaused = true;
+        if (pauseMenuUI != null)
+            pauseMenuUI.SetActive(true);
+
+        Debug.Log("Game paused!");
+    }
+
+    public void ResumeGame()
+    {
+        Time.timeScale = 1f;
+        isPaused = false;
+        if (pauseMenuUI != null)
+            pauseMenuUI.SetActive(false);
+
+        Debug.Log("Game resumed!");
+    }
+
 
 }
