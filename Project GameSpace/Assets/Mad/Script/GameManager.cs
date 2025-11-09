@@ -3,7 +3,6 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
 
-
 [DefaultExecutionOrder(-100)]
 public class GameManager : MonoBehaviour
 {
@@ -12,27 +11,28 @@ public class GameManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private Ghost[] ghosts;
     [SerializeField] private PlayerController pacman;
+    public PlayerController Pacman => pacman;
     [SerializeField] private Transform pellets;
 
     [Header("UI")]
     [SerializeField] private TMP_Text scoreText;
     [SerializeField] private TMP_Text livesText;
-    //[SerializeField] private TMP_Text gameOverText;
     private GameUIManager uiManager;
-    [SerializeField] private bool showGameOverUI = false;
 
     [Header("Settings")]
     [SerializeField] private int startingLives = 3;
 
-    private int ghostMultiplier = 1;
     private bool _isGameOver = false;
     private bool isRespawning = false;
+
+    [Header("Portal Settings")]
     [SerializeField] private GameObject portalPrefab;
-    private bool isPaused = false;
-    [SerializeField] private GameObject pauseMenuUI;
     private GameObject activePortal;
     [SerializeField] private Transform portalSpawnPoint;
 
+    [Header("Pause Settings")]
+    [SerializeField] private GameObject pauseMenuUI;
+    private bool isPaused = false;
 
     public int Score { get; private set; } = 0;
     public int Lives { get; private set; }
@@ -42,24 +42,19 @@ public class GameManager : MonoBehaviour
     {
         if (Instance != null)
             DestroyImmediate(gameObject);
-        else 
-        {
+        else
             Instance = this;
-        }
     }
 
     private void Start()
     {
         uiManager = FindObjectOfType<GameUIManager>();
-        //gameOverText.enabled = false;
         NewGame();
         Time.timeScale = 1f;
     }
 
     private void Update()
     {
-        // restart game logika optional jika mau
-        // disini tidak ada apa-apa
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (isPaused)
@@ -69,11 +64,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // === GAME FLOW ===
     private void NewGame()
     {
         _isGameOver = false;
         isRespawning = false;
-        ghostMultiplier = 1;
+
         SetScore(0);
         SetLives(startingLives);
         NewRound();
@@ -89,19 +85,17 @@ public class GameManager : MonoBehaviour
 
     private void ResetState()
     {
-        // Aktifkan player
         pacman.gameObject.SetActive(true);
         pacman.enabled = true;
         pacman.ForceRecenter();
 
-        // Aktifkan ghost & AI
         foreach (Ghost ghost in ghosts)
         {
+            if (ghost == null) continue;
             ghost.gameObject.SetActive(true);
             ghost.ResetState();
-            var enemyAI = ghost.GetComponent<EnemyAI>();
-            if (enemyAI != null)
-                enemyAI.enabled = true;
+            if (ghost.movement != null)
+                ghost.movement.enabled = true;
         }
     }
 
@@ -109,29 +103,20 @@ public class GameManager : MonoBehaviour
     {
         _isGameOver = true;
 
-        // Hanya stop input player
-       // gameOverText.enabled = true;
         pacman.enabled = false;
         pacman.gameObject.SetActive(false);
 
-        // ghost tetap terlihat, tapi movement dimatikan
         foreach (Ghost ghost in ghosts)
         {
-            var enemyAI = ghost.GetComponent<EnemyAI>();
-            if (enemyAI != null)
-                enemyAI.enabled = false;
+            if (ghost != null && ghost.movement != null)
+                ghost.movement.enabled = false;
         }
-
-        // tidak ada Time.timeScale = 0
-       // if (showGameOverUI && gameOverText != null)
-        //    gameOverText.enabled = true;
 
         if (uiManager != null)
-        {
             uiManager.ShowGameOver();
-        }
     }
 
+    // === SCORE & LIVES ===
     private void SetLives(int lives)
     {
         Lives = lives;
@@ -146,6 +131,7 @@ public class GameManager : MonoBehaviour
             scoreText.text = Score.ToString().PadLeft(2, '0');
     }
 
+    // === PLAYER DEATH & RESPAWN ===
     public void PacmanEaten()
     {
         if (_isGameOver || isRespawning) return;
@@ -155,19 +141,14 @@ public class GameManager : MonoBehaviour
         if (Lives > 0)
         {
             isRespawning = true;
-
-            // Nonaktifkan player dulu
             pacman.enabled = false;
 
-            // Hentikan gerakan ghost sementara
             foreach (Ghost ghost in ghosts)
             {
-                var enemyAI = ghost.GetComponent<EnemyAI>();
-                if (enemyAI != null)
-                    enemyAI.enabled = false;
+                if (ghost != null && ghost.movement != null)
+                    ghost.movement.enabled = false;
             }
 
-            // Jalankan delay respawn
             StartCoroutine(RespawnDelayCoroutine());
         }
         else
@@ -175,49 +156,38 @@ public class GameManager : MonoBehaviour
             GameOver();
         }
     }
+
     private IEnumerator RespawnDelayCoroutine()
     {
         yield return new WaitForSeconds(1.5f);
 
-        // aktifkan kembali AI ghost sebelum respawn round
         foreach (Ghost ghost in ghosts)
         {
-            var enemyAI = ghost.GetComponent<EnemyAI>();
-            if (enemyAI != null)
-                enemyAI.enabled = true;
+            if (ghost != null && ghost.movement != null)
+                ghost.movement.enabled = true;
         }
 
         RespawnRound();
     }
+
     private void RespawnRound()
     {
         if (_isGameOver) return;
 
-        pacman.RespawnToStart(); // respawn ke titik semula
+        pacman.RespawnToStart();
         pacman.enabled = true;
         pacman.gameObject.SetActive(true);
 
         foreach (Ghost ghost in ghosts)
         {
-            ghost.ResetState();
-            ghost.gameObject.SetActive(true);
-            var enemyAI = ghost.GetComponent<EnemyAI>();
-            if (enemyAI != null)
-                enemyAI.enabled = true;
+            if (ghost == null) continue;
+            ghost.enabled = true; // hanya aktifkan lagi, jangan ubah posisi
         }
 
         isRespawning = false;
     }
 
-    public void GhostEaten(Ghost ghost)
-    {
-        if (_isGameOver) return;
-
-        int points = ghost.points * ghostMultiplier;
-        SetScore(Score + points);
-        ghostMultiplier++;
-    }
-
+    // === PELLET & PORTAL ===
     public void PelletEaten(Pellet pellet)
     {
         if (_isGameOver) return;
@@ -227,21 +197,9 @@ public class GameManager : MonoBehaviour
 
         if (!HasRemainingPellets())
         {
-            // semua pellet sudah diambil → panggil portal spawn
             SpawnPortal();
-            Debug.Log("Semua pellet sudah diambil! Portal aktif, masuk ke portal untuk lanjut level.");
+            Debug.Log("Semua pellet sudah diambil! Portal aktif!");
         }
-    }
-    private void SpawnPortal()
-    {
-        if (portalPrefab == null)
-        {
-            Debug.LogWarning("Portal prefab belum di-assign di Inspector!");
-            return;
-        }
-
-        portalPrefab.SetActive(true);
-        Debug.Log("✨ Portal diaktifkan karena semua pellet sudah diambil!");
     }
 
     private bool HasRemainingPellets()
@@ -254,108 +212,98 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
-    private void ResetGhostMultiplier()
+    private void SpawnPortal()
     {
-        ghostMultiplier = 1;
-    }
-    public void NextLevel()
-    {
-        Debug.Log("Next level dimulai!");
+        if (portalPrefab == null)
+        {
+            Debug.LogWarning("Portal prefab belum di-assign!");
+            return;
+        }
 
-        // hapus portal lama
-        if (activePortal != null)
-            Destroy(activePortal);
-
-        // opsional: efek fade, delay, dsb bisa ditambah di sini
-        StartCoroutine(NextLevelCoroutine());
+        portalPrefab.SetActive(true);
+        Debug.Log("✨ Portal diaktifkan!");
     }
 
-    private IEnumerator NextLevelCoroutine()
-    {
-        // hentikan input & gerakan player
-        pacman.enabled = false;
-        var pacmanRb = pacman.GetComponent<Rigidbody2D>();
-        if (pacmanRb != null)
-            pacmanRb.velocity = Vector2.zero; // langsung berhenti
-
-        // hentikan semua ghost sementara
-        foreach (Ghost ghost in ghosts)
-        {
-            var ai = ghost.GetComponent<EnemyAI>();
-            if (ai != null)
-                ai.enabled = false;
-        }
-        // delay dikit biar kelihatan efeknya
-        yield return new WaitForSeconds(1f);
-
-        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-        int nextSceneIndex = currentSceneIndex + 1;
-
-        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
-        {
-            Debug.Log("Memuat scene berikutnya: " + nextSceneIndex);
-            SceneManager.LoadScene(nextSceneIndex);
-        }
-        else
-        {
-            Debug.Log("Tidak ada scene berikutnya, kembali ke menu utama atau restart game.");
-            SceneManager.LoadScene(0); // misalnya balik ke main menu
-        }
-    }
+    // === LEVEL MANAGEMENT ===
     public void LevelCompleted()
     {
-        _isGameOver = true; // Supaya input & movement berhenti
+        _isGameOver = true;
         pacman.enabled = false;
 
-        // Matikan AI musuh
         foreach (Ghost ghost in ghosts)
         {
-            var enemyAI = ghost.GetComponent<EnemyAI>();
-            if (enemyAI != null)
-                enemyAI.enabled = false;
+            if (ghost != null && ghost.movement != null)
+                ghost.movement.enabled = false;
         }
 
-        Debug.Log("Level selesai! Menuju level berikutnya...");
-
+        Debug.Log("Level selesai!");
         if (uiManager != null)
-        {
-            uiManager.ShowWin(); // tampilkan UI kemenangan
-        }
+            uiManager.ShowWin();
 
-        // lanjut ke level berikutnya setelah delay
         StartCoroutine(NextLevelDelay());
     }
 
     private IEnumerator NextLevelDelay()
     {
-        yield return new WaitForSeconds(2f); // kasih waktu 2 detik biar player lihat efek kemenangan
+        yield return new WaitForSeconds(2f);
         NextLevel();
     }
-    public int lastLevelIndex { get; private set; }
+
+    public void NextLevel()
+    {
+        Debug.Log("Next level dimulai!");
+
+        if (activePortal != null)
+            Destroy(activePortal);
+
+        StartCoroutine(NextLevelCoroutine());
+    }
+
+    private IEnumerator NextLevelCoroutine()
+    {
+        pacman.enabled = false;
+        var rb = pacman.GetComponent<Rigidbody2D>();
+        if (rb != null) rb.velocity = Vector2.zero;
+
+        foreach (Ghost ghost in ghosts)
+        {
+            if (ghost != null && ghost.movement != null)
+                ghost.movement.enabled = false;
+        }
+
+        yield return new WaitForSeconds(1f);
+
+        int currentScene = SceneManager.GetActiveScene().buildIndex;
+        int nextScene = currentScene + 1;
+
+        if (nextScene < SceneManager.sceneCountInBuildSettings)
+            SceneManager.LoadScene(nextScene);
+        else
+            SceneManager.LoadScene(0);
+    }
+
+    // === GAME STATE ===
     public bool IsLastLevel()
     {
         int currentScene = SceneManager.GetActiveScene().buildIndex;
         return currentScene + 1 >= SceneManager.sceneCountInBuildSettings;
     }
 
-    // Fungsi untuk menang / selesai semua level
     public void WinGame()
     {
-        // Simpan state terakhir
         PlayerPrefs.SetInt("LastLevelIndex", SceneManager.GetActiveScene().buildIndex);
         PlayerPrefs.SetInt("LastLives", Lives);
         PlayerPrefs.SetInt("LastScore", Score);
-
-        // Load Victory Scene
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Akhir");
+        SceneManager.LoadScene("Akhir");
     }
+
+    // === PAUSE MENU ===
     public void PauseGame()
     {
         Time.timeScale = 0f;
         isPaused = true;
         if (pauseMenuUI != null)
             pauseMenuUI.SetActive(true);
-
         Debug.Log("Game paused!");
     }
 
@@ -365,9 +313,15 @@ public class GameManager : MonoBehaviour
         isPaused = false;
         if (pauseMenuUI != null)
             pauseMenuUI.SetActive(false);
-
         Debug.Log("Game resumed!");
     }
 
-
+    public void RetryGame()
+    {
+        Debug.Log("Retry pressed!");
+        Time.timeScale = 1f;
+        isPaused = false;
+        PlayerPrefs.DeleteAll();
+        SceneManager.LoadScene(1);
+    }
 }

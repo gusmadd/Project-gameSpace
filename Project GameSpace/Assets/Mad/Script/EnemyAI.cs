@@ -12,9 +12,11 @@ public class EnemyAI : MonoBehaviour
     private bool isMoving = false;
     private Vector2Int currentDir = Vector2Int.right;
     public Transform player;
+    public Vector3 startPos;
 
     private void Start()
     {
+        startPos = transform.position;
         SnapToGrid();
         TryStartMove(currentDir);
     }
@@ -44,12 +46,16 @@ public class EnemyAI : MonoBehaviour
     void ChooseNextDirection()
     {
         if (GameManager.Instance.IsGameOver) return;
-        if (player == null) return;
+        if (player == null)
+        {
+            Debug.LogWarning($"{name} tidak punya player reference!");
+            return;
+        }
 
         List<Vector2Int> possibleDirs = new List<Vector2Int>()
-    {
-        Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right
-    };
+        {
+            Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right
+        };
 
         Vector2Int opposite = -currentDir;
         possibleDirs.Remove(opposite);
@@ -67,7 +73,7 @@ public class EnemyAI : MonoBehaviour
             return;
         }
 
-        // Pilih arah yang mendekati player
+        // cari arah mendekati player
         Vector2Int bestDir = validDirs[0];
         float minDist = float.MaxValue;
 
@@ -86,7 +92,6 @@ public class EnemyAI : MonoBehaviour
 
         TryStartMove(bestDir);
     }
-
 
     private bool CanMove(Vector2Int dir)
     {
@@ -109,14 +114,11 @@ public class EnemyAI : MonoBehaviour
     {
         if (wallTilemap == null) return;
 
-        // Snap ke tengah cell setelah teleport
         Vector3Int cell = wallTilemap.WorldToCell(transform.position);
         targetWorldPos = wallTilemap.CellToWorld(cell) + (Vector3)wallTilemap.cellSize * 0.5f;
         transform.position = targetWorldPos;
 
-        // Reset agar bisa langsung gerak
         isMoving = false;
-        // pilih arah berikutnya (acak)
         ChooseNextDirection();
     }
 
@@ -125,6 +127,24 @@ public class EnemyAI : MonoBehaviour
         player = p;
     }
 
+    public void RespawnToStart()
+    {
+        transform.position = startPos; // kembalikan ke posisi awal
+        isMoving = false;
 
+        // Recenter posisi ke grid
+        SnapToGrid();
+        if (player == null && GameManager.Instance != null)
+            SetPlayer(GameManager.Instance.Pacman.transform);
+
+        // Mulai gerak lagi
+        ChooseNextDirection();
+    }
+
+    public void RestartMovement()
+    {
+        SnapToGrid();
+        ChooseNextDirection();
+    }
 
 }

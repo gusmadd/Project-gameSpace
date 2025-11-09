@@ -18,14 +18,25 @@ public class Ghost : MonoBehaviour
 
     public void ResetState()
     {
-        // masuk rumah dulu
-        if (home != null && home.inside != null)
-            transform.position = home.inside.position;
-
-        movement.enabled = true;
-
         if (currentBehavior != null)
             currentBehavior.Disable();
+
+        gameObject.SetActive(true);
+
+        if (home != null && home.inside != null)
+        {
+            transform.position = home.inside.position;
+            movement.startPos = home.inside.position; // update startPos supaya sinkron
+        }
+
+        if (movement != null)
+        {
+            movement.enabled = true;
+            movement.RespawnToStart();
+        }
+
+        if (bodyRenderer != null)
+            bodyRenderer.enabled = true;
     }
 
     public void SetBehavior(GhostBehavior behavior)
@@ -42,7 +53,7 @@ public class Ghost : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         // cek apakah objek ini player
-        
+
         Debug.Log("Ghost menabrak sesuatu: " + other.name);
 
         PlayerController player = other.GetComponent<PlayerController>();

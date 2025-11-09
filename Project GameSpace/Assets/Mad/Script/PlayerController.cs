@@ -24,28 +24,30 @@ public class PlayerController : MonoBehaviour
     // input buffering
     private Vector2Int currentDir = Vector2Int.zero; // arah saat ini (grid)
     private Vector2Int queuedDir = Vector2Int.zero;  // arah yang ditekan saat bergerak
+    private SpriteRenderer spriteRenderer;
 
     void Start()
     {
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         // Snap start position to nearest cell center
         Vector3Int startCell = wallTilemap.WorldToCell(transform.position);
         targetWorldPos = wallTilemap.CellToWorld(startCell) + (Vector3)wallTilemap.cellSize * 0.5f;
         transform.position = targetWorldPos;
     }
     public void RespawnToStart()
-{
-    // Pastikan respawn ke posisi tengah cell awal (bukan posisi interpolasi)
-    Vector3Int startCell = wallTilemap.WorldToCell(startPos);
-    Vector3 cellCenter = wallTilemap.CellToWorld(startCell) + (Vector3)wallTilemap.cellSize * 0.5f;
-    transform.position = cellCenter;
+    {
+        // Pastikan respawn ke posisi tengah cell awal (bukan posisi interpolasi)
+        Vector3Int startCell = wallTilemap.WorldToCell(startPos);
+        Vector3 cellCenter = wallTilemap.CellToWorld(startCell) + (Vector3)wallTilemap.cellSize * 0.5f;
+        transform.position = cellCenter;
 
-    isMoving = false;
-    currentDir = Vector2Int.zero;
-    queuedDir = Vector2Int.zero;
-    targetWorldPos = cellCenter; // <— penting supaya arah berikutnya benar
+        isMoving = false;
+        currentDir = Vector2Int.zero;
+        queuedDir = Vector2Int.zero;
+        targetWorldPos = cellCenter; // <— penting supaya arah berikutnya benar
 
-    Debug.Log("Player respawn ke posisi awal: " + cellCenter);
-}
+        Debug.Log("Player respawn ke posisi awal: " + cellCenter);
+    }
 
 
     // method untuk menambah skor
@@ -178,6 +180,34 @@ public class PlayerController : MonoBehaviour
         Vector3Int currentCell = wallTilemap.WorldToCell(transform.position);
         Vector3Int nextCell = new Vector3Int(currentCell.x + dir.x, currentCell.y + dir.y, currentCell.z);
         targetWorldPos = wallTilemap.CellToWorld(nextCell) + (Vector3)wallTilemap.cellSize * 0.5f;
+        // --- Arahkan sprite ---
+        if (spriteRenderer != null)
+        {
+            // Gerak ke atas
+            if (dir == Vector2Int.up)
+            {
+                spriteRenderer.transform.rotation = Quaternion.Euler(0, 0, 90);
+                spriteRenderer.flipX = false; // reset flip
+            }
+            // Gerak ke bawah
+            else if (dir == Vector2Int.down)
+            {
+                spriteRenderer.transform.rotation = Quaternion.Euler(0, 0, -90);
+                spriteRenderer.flipX = false;
+            }
+            // Gerak ke kanan
+            else if (dir == Vector2Int.right)
+            {
+                spriteRenderer.transform.rotation = Quaternion.Euler(0, 0, 0);
+                spriteRenderer.flipX = false;
+            }
+            // Gerak ke kiri
+            else if (dir == Vector2Int.left)
+            {
+                spriteRenderer.transform.rotation = Quaternion.Euler(0, 0, 0); // tetap rotasi normal
+                spriteRenderer.flipX = true; // flip horizontal
+            }
+        }
     }
 
     void CheckAndEatPellet()
@@ -232,8 +262,6 @@ public class PlayerController : MonoBehaviour
         if (!GameManager.Instance.IsGameOver)
             enabled = true;
     }
-
-
 
     public void Respawn()
     {

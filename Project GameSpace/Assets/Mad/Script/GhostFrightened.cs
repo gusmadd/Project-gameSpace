@@ -1,8 +1,9 @@
 using UnityEngine;
+using System.Collections;
 
 public class GhostFrightened : GhostBehavior
 {
-    public SpriteRenderer bodyRenderer;  // assign di prefab Ghost_Base
+    public SpriteRenderer bodyRenderer;
     private Color originalColor;
     private bool isEaten = false;
 
@@ -16,28 +17,32 @@ public class GhostFrightened : GhostBehavior
     {
         base.Enable(duration);
         isEaten = false;
-
         if (bodyRenderer != null)
-            bodyRenderer.color = Color.blue; // biru frightened
+            bodyRenderer.color = Color.blue;
     }
 
     public override void Disable()
     {
         base.Disable();
-
         if (bodyRenderer != null)
-            bodyRenderer.color = originalColor; // kembali normal
+            bodyRenderer.color = originalColor;
     }
 
     public void OnEaten()
     {
         if (isEaten) return;
-
         isEaten = true;
 
-        GameManager.Instance.GhostEaten(ghost);
+        GetComponent<EnemyAI>().RespawnToStart();
+        Disable();
+    }
 
-        ghost.ResetState();  // balik ke rumah
+    private IEnumerator RespawnDelay()
+    {
+        gameObject.SetActive(false);
+        yield return new WaitForSeconds(2f);
+        GetComponent<EnemyAI>().RespawnToStart();
+        gameObject.SetActive(true);
         Disable();
     }
 }
