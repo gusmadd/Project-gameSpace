@@ -134,5 +134,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lifeTime: 10
-  respawnDelay: 3
+  respawnDelay: 2.5
   boomEffect: {fileID: 9159367262294084998, guid: e0bad5eb9fd0c434a93bce3591e57440, type: 3}

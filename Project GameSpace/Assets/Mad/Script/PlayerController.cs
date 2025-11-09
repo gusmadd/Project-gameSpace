@@ -218,7 +218,13 @@ public class PlayerController : MonoBehaviour
         if (pelletTilemap.HasTile(cell))
         {
             pelletTilemap.SetTile(cell, null);
-            // TODO: tambah scoring & SFX di sini
+
+            // ✅ Panggil SFX hanya kalau benar-benar makan pellet
+            AudioManager.Instance?.PlayPelletEatSFX();
+
+            // Tambah skor
+            score += 10;
+            Debug.Log("Makan pellet! Skor: " + score);
         }
     }
     public void ForceRecenter()

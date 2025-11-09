@@ -10,7 +10,7 @@ public class AbilityUI : MonoBehaviour
     public Image cooldownOverlay;    // overlay abu-abu
 
     [Header("Ability Settings")]
-    public float cooldownTime = 5f;  // durasi cooldown
+    public float cooldownTime = 5f;  // default cooldown
     public bool isReady = true;
 
     private Coroutine cooldownRoutine;
@@ -18,32 +18,35 @@ public class AbilityUI : MonoBehaviour
     private void Start()
     {
         if (cooldownOverlay != null)
-            cooldownOverlay.fillAmount = 0f; // 0 artinya tidak tertutup (siap pakai)
+            cooldownOverlay.fillAmount = 0f; // siap pakai
     }
 
+    // 🔹 Bisa dipanggil tanpa parameter → pakai cooldownTime default
     public void TriggerCooldown()
     {
-        if (isReady && cooldownOverlay != null)
-        {
-            if (cooldownRoutine != null)
-                StopCoroutine(cooldownRoutine);
-
-            cooldownRoutine = StartCoroutine(CooldownCoroutine());
-        }
+        TriggerCooldown(cooldownTime);
     }
 
-    private IEnumerator CooldownCoroutine()
+    // 🔹 Bisa dipanggil dengan parameter → pakai durasi custom
+    public void TriggerCooldown(float duration)
+    {
+        if (cooldownRoutine != null)
+            StopCoroutine(cooldownRoutine);
+
+        cooldownRoutine = StartCoroutine(CooldownCoroutine(duration));
+    }
+
+    private IEnumerator CooldownCoroutine(float duration)
     {
         isReady = false;
-        float timer = cooldownTime;
+        float timer = duration;
 
-        // overlay penuh abu-abu saat baru dipakai
         cooldownOverlay.fillAmount = 1f;
 
         while (timer > 0f)
         {
             timer -= Time.deltaTime;
-            cooldownOverlay.fillAmount = timer / cooldownTime;
+            cooldownOverlay.fillAmount = timer / duration;
             yield return null;
         }
 

@@ -49,6 +49,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         uiManager = FindObjectOfType<GameUIManager>();
+        AudioManager.Instance?.PlayInGameBGM(); 
         NewGame();
         Time.timeScale = 1f;
     }
@@ -77,6 +78,7 @@ public class GameManager : MonoBehaviour
 
     private void NewRound()
     {
+        AudioManager.Instance?.PlayInGameBGM();
         foreach (Transform pellet in pellets)
             pellet.gameObject.SetActive(true);
 
@@ -85,6 +87,7 @@ public class GameManager : MonoBehaviour
 
     private void ResetState()
     {
+        AudioManager.Instance?.PlayInGameBGM();
         pacman.gameObject.SetActive(true);
         pacman.enabled = true;
         pacman.ForceRecenter();
@@ -134,6 +137,8 @@ public class GameManager : MonoBehaviour
     // === PLAYER DEATH & RESPAWN ===
     public void PacmanEaten()
     {
+        AudioManager.Instance?.PlayPacmanDieBGMThenResume();
+
         if (_isGameOver || isRespawning) return;
 
         SetLives(Mathf.Max(Lives - 1, 0));
@@ -187,6 +192,28 @@ public class GameManager : MonoBehaviour
         isRespawning = false;
     }
 
+    // === ENEMY ===
+    public void RespawnGhost(Ghost ghost, float delay)
+    {
+        StartCoroutine(RespawnGhostCoroutine(ghost, delay));
+    }
+
+    private IEnumerator RespawnGhostCoroutine(Ghost ghost, float delay)
+    {
+        Debug.Log($"[GameManager] Ghost {ghost.name} terbakar, respawn dalam {delay} detik...");
+
+        ghost.gameObject.SetActive(false);
+        yield return new WaitForSeconds(delay);
+
+        ghost.gameObject.SetActive(true);
+        ghost.ResetState();
+
+        if (ghost.movement != null)
+            ghost.movement.RestartMovement();
+
+        Debug.Log($"[GameManager] Ghost {ghost.name} berhasil direspawn dan bergerak lagi!");
+    }
+
     // === PELLET & PORTAL ===
     public void PelletEaten(Pellet pellet)
     {
@@ -227,6 +254,8 @@ public class GameManager : MonoBehaviour
     // === LEVEL MANAGEMENT ===
     public void LevelCompleted()
     {
+        AudioManager.Instance?.PlayLevelCompleteBGM();
+
         _isGameOver = true;
         pacman.enabled = false;
 

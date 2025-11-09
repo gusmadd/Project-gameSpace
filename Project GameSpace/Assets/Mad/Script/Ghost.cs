@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 [RequireComponent(typeof(EnemyAI))]
 public class Ghost : MonoBehaviour
@@ -39,6 +40,32 @@ public class Ghost : MonoBehaviour
             bodyRenderer.enabled = true;
     }
 
+    // 🔥 Coroutine baru untuk burn & respawn
+    public IEnumerator BurnAndRespawn(float delay)
+    {
+        Debug.Log("[👻 Ghost] Terbakar, mulai proses BurnAndRespawn...");
+
+        // Hentikan semua perilaku aktif
+        StopAllCoroutines();
+
+        // Nonaktifkan ghost sementara
+        gameObject.SetActive(false);
+
+        // Tunggu beberapa detik
+        yield return new WaitForSeconds(delay);
+
+        // Hidupkan kembali
+        gameObject.SetActive(true);
+        ResetState();
+
+        EnemyAI ai = GetComponent<EnemyAI>();
+        if (ai != null)
+        {
+            ai.RestartMovement();
+            Debug.Log("[👻 Ghost] Respawn selesai dan movement di-restart.");
+        }
+    }
+
     public void SetBehavior(GhostBehavior behavior)
     {
         if (currentBehavior != null)
@@ -52,8 +79,6 @@ public class Ghost : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // cek apakah objek ini player
-
         Debug.Log("Ghost menabrak sesuatu: " + other.name);
 
         PlayerController player = other.GetComponent<PlayerController>();
