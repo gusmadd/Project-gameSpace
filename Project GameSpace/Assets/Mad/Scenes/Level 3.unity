@@ -17248,8 +17248,8 @@ MonoBehaviour:
   livesText: {fileID: 1770281952}
   startingLives: 3
   portalPrefab: {fileID: 921648371}
-  pauseMenuUI: {fileID: 0}
   portalSpawnPoint: {fileID: 921648373}
+  pauseMenuUI: {fileID: 0}
 --- !u!4 &2096800825
 Transform:
   m_ObjectHideFlags: 0
@@ -17275,10 +17275,10 @@ SceneRoots:
   - {fileID: 12430781}
   - {fileID: 921648373}
   - {fileID: 1529777661}
+  - {fileID: 2096800825}
+  - {fileID: 1728349805}
   - {fileID: 197430856}
   - {fileID: 1444478361}
   - {fileID: 792354952}
   - {fileID: 1717289442}
-  - {fileID: 2096800825}
-  - {fileID: 1728349805}
   - {fileID: 782024494}
