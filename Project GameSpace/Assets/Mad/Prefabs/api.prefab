@@ -150,5 +150,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lifeTime: 1
-  respawnDelay: 3
+  respawnDelay: 4.5
   burnEffect: {fileID: 0}

@@ -159,5 +159,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slowFactor: 0.3
   slowDuration: 2
-  respawnDelay: 3
+  respawnDelay: 5.5
   freezeEffect: {fileID: 0}
